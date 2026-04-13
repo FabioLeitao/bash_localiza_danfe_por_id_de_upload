@@ -1,54 +1,57 @@
 # localiza_danfe_por_id_de_upload
 
-Bash script para automação de busca de arquivos DANFE em PDF enviadas no processo de Checkin Documental do TOSP para uma determinada DI.
-Busca pelo conteúdo de um arquivo texto indicado como parâmetro para este script na pasta, bem como um determinado ANO indicado como outro parâmentro junto aos backups do armazenamento do TOSP na Azure.
-Confere se existem estes arquivos, linha a linha, confere se são realmente PDF, e se consta ao menos uma string identificando o conteúdo dos numerosos arquivos indicados como sendo DANFE, e cria uma cópia em destaque de evidências para facilitar a transferência dos arquivos via SFTP ou WinSCP.
+Bash script to search backup trees for DANFE PDFs by upload id: reads a list of ids from a text file, checks each year folder, validates PDFs, greps for `DANFE` in extracted text, and copies matches into an evidence folder for SFTP transfer.
 
-O arquivo texto de parâmetros (ex: busca.txt) deve preferencialmente ser populado com nomes que suspeitamos poderem ser de determinadas DI a partir de uma Query no banco de dados, e pode ser editado diretamente pelo WinSCP, assim como indicado o ano que mais provavelmente teria sido enviado para análise (ex: 2025) na hora da execução do script.
+**Context:** document automation for logistics-style check-in workflows (generic; paths and service user are environment-specific).
 
-Para baixar o projeto e preparar o ambiente para uso:
+## Requirements
 
-```
-$ sudo su - sc-tos-app
-$ cd ~
-$ git clone https://github.com/FabioLeitao/bash_localiza_danfe_por_id_de_upload.git
-```
+- Bash 5+, `find`, `grep`, `file`, `pdftotext` (poppler)
+- Read access to your check-in backup root (see below)
+- Optional: `tmux` for long runs so the session survives disconnects
 
-Dependendo da quantidade de IDs a serem procurados, pode haver larga demora, assim recomendo não correr o risco de ter o script interrompido por perda da sessão, buscando rodar dentro de uma sessão do tmux, a ser iniciada antes da execução do mesmo:
+## Clone
 
-```
-$ tmux new-session -A -s localiza_danfe
+```bash
+git clone https://github.com/FabioLeitao/bash_localiza_danfe_por_id_de_upload.git
+cd bash_localiza_danfe_por_id_de_upload
 ```
 
-O script exige ser executado pelo usuário sc-tos-app ou falhará devido a permissão de acesso as pastas de backups dos PDFs enviados, mas pode ser executado como no exemplo abaixo:
+## Configuration
 
-```
-$ bash ~\localiza_danfe_por_id_de_upload\localiza_danfe_por_id_de_upload.sh 2025 ~\localiza_danfe_por_id_de_upload\busca.txt
-```
+Set the backup root that contains **per-year** directories (e.g. `2025/`, `2024/`):
 
-Depois de acompanhar o início da execução do script, para sair do tmux sem perder a sessão em execução, digite a sequência de teclas:
-
-```
-Ctrl+B D
+```bash
+export DANFE_BKP_ROOT="/path/to/your/checkin/backup/root"
 ```
 
-Ainda é possível confirmar se a sessão segue mesmo em execução listando o que o tmux estaria gerenciando, o que deveria listar ao menos a localiza_danfe:
+Optional: UID check (default `1000`):
 
-```
-$ tmux ls
-```
-
-O script está configurado para automaticamente criar informações de DEBUG para poderem acompanhar quando executado, ou por poder demorar bastante dependendo da quantidade de IDs de arquivos buscados na pasta de backup pareceia travado.
-
-Todos os logs são ainda gravados em disco para análise posterior (ou mesmo remota), e podem ser lidos a qualquer momento pelo comando:
-
-```
-$ lnav ~/log/busca_danfe_por_id_de_upload.log
+```bash
+export DANFE_SERVICE_UID=1000
 ```
 
-Para retornar a sessão em execução no tmux (talvez seja preciso corrigir algo ou interromper, ou apenas acompanhar ao vivo):
+Create a search list (one id per line). Example file is `busca.example.txt`; copy it to `busca.txt` (ignored by git) or use your own path.
 
+## Run
+
+```bash
+bash ./localiza_danfe_por_id_de_upload.sh 2025 ./busca.txt
 ```
+
+Use a year that matches a subdirectory under `DANFE_BKP_ROOT`.
+
+### tmux (recommended for large lists)
+
+```bash
+tmux new-session -A -s localiza_danfe
+bash ./localiza_danfe_por_id_de_upload.sh 2025 ./busca.txt
+# Detach: Ctrl+B then D
 tmux attach -t localiza_danfe
 ```
 
+Logs: `~/log/busca_danfe_por_id_de_upload.log` (example: `lnav ~/log/busca_danfe_por_id_de_upload.log`).
+
+## License
+
+See [LICENSE](LICENSE).

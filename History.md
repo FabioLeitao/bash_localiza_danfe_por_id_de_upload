@@ -1,4 +1,12 @@
 
+v0.0.5 / 2026-04-08
+==================
+
+  * README and docs aligned with public GitHub; environment variables `DANFE_BKP_ROOT` / `DANFE_SERVICE_UID`
+  * Script: valid shebang, quoting, typo fix in missing-file message; generic backup root default
+  * Sample ids in `busca.example.txt`; real `busca.txt` gitignored
+  * AUTHORS/SECURITY cleanup for public portfolio
+
 v0.0.4 / 2025-04-08
 ==================
 

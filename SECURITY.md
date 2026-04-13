@@ -1,9 +1,13 @@
 # Security Policy
 
-## Supported Versions
+## Supported versions
 
-Any BASH version after 5
+Bash 5+ on Linux (paths assume a POSIX shell and typical `/usr/bin` utilities).
 
-You may need to add an SSH RSA or ED25519 key from a valid user to allow remote access to your SFTP remote box
+## Reporting
 
-Must confirm id number of user to allow inside script and may need to change a few parameters like credentials and where to connect to
+Open a **private** security advisory on GitHub or contact the maintainer via the repository profile.
+
+## Deployment notes
+
+This script is meant to run in a **controlled** environment with explicit paths and service-user checks. Do not commit real id lists, credentials, or internal hostnames to public forks.
